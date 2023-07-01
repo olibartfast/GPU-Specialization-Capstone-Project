@@ -1,5 +1,6 @@
 #include <iostream>
 #include "cxxopts.hpp"
+#include "YoloV8ONNX.hpp"
 
 int main(int argc, char* argv[]) {
     cxxopts::Options options("UnderwaterTrashInstanceSegmentation", "Description of your program");

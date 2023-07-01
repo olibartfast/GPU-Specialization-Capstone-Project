@@ -4,6 +4,9 @@ project(UnderwaterTrashInstanceSegmentation)
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
 
+# Find OpenCV package
+find_package(OpenCV REQUIRED)
+
 # Set the path to the selected framework (modify accordingly)
 set(FRAMEWORK "ONNX_RUNTIME")  # Options: ONNX_RUNTIME, LIBTORCH, TENSORRT
 
@@ -16,7 +19,8 @@ if(FRAMEWORK STREQUAL "ONNX_RUNTIME")
     set(ONNX_RUNTIME_DIR $ENV{HOME}/onnxruntime-linux-x64-1.15.0)
 
     # Include directories
-    include_directories(${ONNX_RUNTIME_DIR}/include)
+    include_directories(${ONNX_RUNTIME_DIR}/include
+    ${OpenCV_INCLUDE_DIRS})
 
     # Link directories
     link_directories(${ONNX_RUNTIME_DIR}/lib)
@@ -27,6 +31,7 @@ if(FRAMEWORK STREQUAL "ONNX_RUNTIME")
     # Link against the ONNX Runtime library
     target_link_libraries(${PROJECT_NAME}
         ${ONNX_RUNTIME_DIR}/lib/libonnxruntime.so
+        ${OpenCV_LIBS}
     )
 
 elseif(FRAMEWORK STREQUAL "LIBTORCH")
