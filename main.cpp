@@ -8,6 +8,7 @@ int main(int argc, char* argv[]) {
     // Add command line options
     options.add_options()
         ("f,framework", "Selected framework (ONNX_RUNTIME, LIBTORCH, or TENSORRT)", cxxopts::value<std::string>())
+        ("w,weights", "Path to weights", cxxopts::value<std::string>())
         ("h,help", "Print help");
 
     // Parse command line arguments
@@ -23,12 +24,19 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    if (!result.count("weights")) {
+        std::cerr << "Weights not specified. Use the --weights option." << std::endl;
+        return 1;
+    }
+
     std::string framework = result["framework"].as<std::string>();
+    std::string weights = result["weights"].as<std::string>();
 
     // Use the selected framework here
     if (framework == "ONNX_RUNTIME") {
         // Perform inference using ONNX Runtime
         std::cout << "Performing inference using ONNX Runtime..." << std::endl;
+        YoloV8ONNX yolo(weights);
     }
     else if (framework == "LIBTORCH") {
         // Perform inference using LibTorch
