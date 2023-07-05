@@ -36,20 +36,16 @@ if(FRAMEWORK STREQUAL "ONNX_RUNTIME")
 
 elseif(FRAMEWORK STREQUAL "LIBTORCH")
     # Set the path to LibTorch (modify accordingly)
-    set(LIBTORCH_DIR /path/to/libtorch)
+    set(Torch_DIR $ENV{HOME}/libtorch/share/cmake/Torch)
 
-    # Include directories
-    include_directories(${LIBTORCH_DIR}/include)
-
-    # Link directories
-    link_directories(${LIBTORCH_DIR}/lib)
+    find_package(Torch REQUIRED)
 
     # Create the executable
     add_executable(${PROJECT_NAME} ${SOURCES})
 
     # Link against the LibTorch library
     target_link_libraries(${PROJECT_NAME}
-        ${LIBTORCH_DIR}/lib/torch.lib
+        ${TORCH_LIBRARIES}
     )
 
 elseif(FRAMEWORK STREQUAL "TENSORRT")
