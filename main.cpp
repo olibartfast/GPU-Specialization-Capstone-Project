@@ -2,6 +2,18 @@
 #include "cxxopts.hpp"
 #include "YoloV8ONNX.hpp"
 
+std::unique_ptr<YoloV8> createYoloV8(const std::string& framework, const std::string& weights) {
+    if (framework == "ONNX_RUNTIME") {
+        return std::make_unique<YoloV8ONNX>(weights);
+    } else if (framework == "LIBTORCH") {
+        return nullptr;
+    } else if (framework == "TENSORRT") {
+        return nullptr;
+    } else {
+        return nullptr;
+    }
+}
+
 int main(int argc, char* argv[]) {
     cxxopts::Options options("UnderwaterTrashInstanceSegmentation", "Description of your program");
 
@@ -9,6 +21,7 @@ int main(int argc, char* argv[]) {
     options.add_options()
         ("f,framework", "Selected framework (ONNX_RUNTIME, LIBTORCH, or TENSORRT)", cxxopts::value<std::string>())
         ("w,weights", "Path to weights", cxxopts::value<std::string>())
+        ("v,video", "Path to video source", cxxopts::value<std::string>())
         ("h,help", "Print help");
 
     // Parse command line arguments
@@ -29,29 +42,29 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::string framework = result["framework"].as<std::string>();
-    std::string weights = result["weights"].as<std::string>();
-
-    // Use the selected framework here
-    if (framework == "ONNX_RUNTIME") {
-        // Perform inference using ONNX Runtime
-        std::cout << "Performing inference using ONNX Runtime..." << std::endl;
-        YoloV8ONNX yolo(weights);
-    }
-    else if (framework == "LIBTORCH") {
-        // Perform inference using LibTorch
-        std::cout << "Performing inference using LibTorch..." << std::endl;
-    }
-    else if (framework == "TENSORRT") {
-        // Perform inference using TensorRT
-        std::cout << "Performing inference using TensorRT..." << std::endl;
-    }
-    else {
-        std::cerr << "Invalid framework specified. Please use ONNX_RUNTIME, LIBTORCH, or TENSORRT." << std::endl;
+    if (!result.count("video")) {
+        std::cerr << "video input source not specified. Use the --video option." << std::endl;
         return 1;
     }
 
-    // Rest of your code for inference
+
+    std::string framework = result["framework"].as<std::string>();
+    std::string weights = result["weights"].as<std::string>();
+    std::string video = result["video"].as<std::string>();
+
+    std::unique_ptr<YoloV8> yolo = createYoloV8(framework,weights);
+    if (!yolo) {
+        std::cerr << "Invalid framework specified. Supported frameworks are ONNX_RUNTIME, LIBTORCH, and TENSORRT." << std::endl;
+        return 1;
+    }
+    cv::VideoCapture cap(video);
+    cv::Mat frame;
+    while(cap.read(frame))
+    {
+        yolo->infer(frame);
+
+    }
+
 
     return 0;
 }
