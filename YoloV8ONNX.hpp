@@ -155,6 +155,15 @@ public:
         assert(output_ort_tensors.size() == output_names_.size() && output_ort_tensors[0].IsTensor());
             
 
+        std::vector<float> output0(output_ort_tensors[0].GetTensorData<float>(),output_ort_tensors[0].GetTensorData<float>() + output_ort_tensors[0].GetTensorTypeAndShapeInfo().GetElementCount());
+        std::vector<float> output1(output_ort_tensors[1].GetTensorData<float>(), output_ort_tensors[1].GetTensorData<float>() + output_ort_tensors[1].GetTensorTypeAndShapeInfo().GetElementCount());  
+
+        auto shapes0 = output_ort_tensors[0].GetTensorTypeAndShapeInfo().GetShape();
+	    auto shapes1 = output_ort_tensors[1].GetTensorTypeAndShapeInfo().GetShape();    
+        const auto offset = 4;
+        const auto numClasses = shapes0[1] - offset -  shapes1[1];
+        std::vector<std::vector<float>> output(shapes0[1], std::vector<float>(shapes0[2]));
+
 
     }
     // Add other necessary members and methods for ONNX Runtime inference
