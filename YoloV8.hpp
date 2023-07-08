@@ -12,6 +12,7 @@ struct Detection{
     cv::Rect bbox;
     float score;
     float label_id;
+    cv::Mat boxMask;
 };
 
 class YoloV8 {
