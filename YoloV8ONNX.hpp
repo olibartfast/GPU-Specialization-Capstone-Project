@@ -90,24 +90,27 @@ public:
         return ss.str();
     }
 
-    YoloV8ONNX(const std::string &model_path)
+    YoloV8ONNX(const std::string &model_path, bool use_gpu = false)
     {
 
         Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "YoloV8ONNX");
 
         Ort::SessionOptions session_options;
 
-        // Check if CUDA GPU is available
-        int device_id = 0;
-        OrtStatus* status = OrtSessionOptionsAppendExecutionProvider_CUDA(session_options, device_id);
-        if (status == nullptr) {
-            // CUDA GPU is available, use it
-            std::cout << "Using CUDA GPU" << std::endl;
-        } else {
-            // CUDA GPU is not available, fall back to CPU
-            std::cout << "CUDA GPU not available, falling back to CPU" << std::endl;
-            Ort::GetApi().ReleaseStatus(status);
-            session_options = Ort::SessionOptions();
+        if(use_gpu)
+        {
+            // Check if CUDA GPU is available
+            int device_id = 0;
+            OrtStatus* status = OrtSessionOptionsAppendExecutionProvider_CUDA(session_options, device_id);
+            if (status == nullptr) {
+                // CUDA GPU is available, use it
+                std::cout << "Using CUDA GPU" << std::endl;
+            } else {
+                // CUDA GPU is not available, fall back to CPU
+                std::cout << "CUDA GPU not available, falling back to CPU" << std::endl;
+                Ort::GetApi().ReleaseStatus(status);
+                session_options = Ort::SessionOptions();
+            }
         }
 
         session_ = Ort::Session(env, model_path.c_str(), session_options);
