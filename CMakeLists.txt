@@ -16,7 +16,7 @@ set(SOURCES main.cpp)
 # Include directories and link libraries based on the selected framework
 if(FRAMEWORK STREQUAL "ONNX_RUNTIME")
     # Set the path to ONNX Runtime (modify accordingly)
-    set(ONNX_RUNTIME_DIR $ENV{HOME}/onnxruntime-linux-x64-1.15.0)
+    set(ONNX_RUNTIME_DIR $ENV{HOME}/onnxruntime-linux-x64-gpu-1.15.1)
 
     # Include directories
     include_directories(${ONNX_RUNTIME_DIR}/include

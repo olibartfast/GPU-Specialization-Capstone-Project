@@ -1,4 +1,5 @@
-#include <onnxruntime_cxx_api.h>
+#include <onnxruntime_cxx_api.h>  // for ONNX Runtime C++ API
+#include <onnxruntime_c_api.h>    // for CUDA execution provider (if using CUDA)
 #include "YoloV8.hpp"
 
 
@@ -91,11 +92,25 @@ public:
 
     YoloV8ONNX(const std::string &model_path)
     {
-        env_ = Ort::Env(ORT_LOGGING_LEVEL_WARNING, "YoloV8ONNX");
-        // Initialize the ONNX Runtime environment
+
+        Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "YoloV8ONNX");
+
         Ort::SessionOptions session_options;
-        session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
-        session_ = Ort::Session(env_, model_path.c_str(), session_options); // Load the model here
+
+        // Check if CUDA GPU is available
+        int device_id = 0;
+        OrtStatus* status = OrtSessionOptionsAppendExecutionProvider_CUDA(session_options, device_id);
+        if (status == nullptr) {
+            // CUDA GPU is available, use it
+            std::cout << "Using CUDA GPU" << std::endl;
+        } else {
+            // CUDA GPU is not available, fall back to CPU
+            std::cout << "CUDA GPU not available, falling back to CPU" << std::endl;
+            Ort::GetApi().ReleaseStatus(status);
+            session_options = Ort::SessionOptions();
+        }
+
+        session_ = Ort::Session(env, model_path.c_str(), session_options);
 
         Ort::AllocatorWithDefaultOptions allocator;
         std::cout << "Input Node Name/Shape (" << input_names_.size() << "):" << std::endl;
