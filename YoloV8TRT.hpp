@@ -57,10 +57,10 @@ public:
             nvinfer1::Dims dims = engine_.get()->getBindingDimensions(i);
             if (engine_.get()->bindingIsInput(i))
             {
-                input_shapes_.emplace_back(dims.d[2], dims.d[1]);
-                input_width_ = dims.d[2];
-                input_height_ = dims.d[1];
-                channels_ = dims.d[0];
+                const auto input_shape = std::vector{dims.d[0], dims.d[1], dims.d[2], dims.d[3]};
+                input_width_ = dims.d[3];
+                input_height_ = dims.d[2];
+                channels_ = dims.d[1];
             }
         }
     }
