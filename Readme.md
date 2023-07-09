@@ -62,7 +62,7 @@ By following these steps, you can successfully export the model in the desired f
 
 
 
-1. **For each inference framework**
+ **TODO/IN PROGRESS For each inference framework**
 
    - Install by following the instructions provided in the official documentation.
    - Load the pretrained weights into the inference session.
