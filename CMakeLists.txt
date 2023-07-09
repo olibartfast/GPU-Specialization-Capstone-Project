@@ -13,42 +13,36 @@ set(FRAMEWORK "ONNX_RUNTIME")  # Options: ONNX_RUNTIME, LIBTORCH, TENSORRT
 # Set the source files for your project
 set(SOURCES main.cpp)
 
-# Include directories and link libraries based on the selected framework
+# Include directories for OpenCV
+include_directories(${OpenCV_INCLUDE_DIRS})
+
+# Unset cache compiler definitions for the selected framework
 if(FRAMEWORK STREQUAL "ONNX_RUNTIME")
+    unset(USE_LIBTORCH CACHE)
+    unset(USE_TENSORRT CACHE)
+    add_compile_definitions(USE_ONNX_RUNTIME)
     # Set the path to ONNX Runtime (modify accordingly)
     set(ONNX_RUNTIME_DIR $ENV{HOME}/onnxruntime-linux-x64-gpu-1.15.1)
 
     # Include directories
-    include_directories(${ONNX_RUNTIME_DIR}/include
-    ${OpenCV_INCLUDE_DIRS})
+    include_directories(${ONNX_RUNTIME_DIR}/include)
 
     # Link directories
     link_directories(${ONNX_RUNTIME_DIR}/lib)
 
-    # Create the executable
-    add_executable(${PROJECT_NAME} ${SOURCES})
-
-    # Link against the ONNX Runtime library
-    target_link_libraries(${PROJECT_NAME}
-        ${ONNX_RUNTIME_DIR}/lib/libonnxruntime.so
-        ${OpenCV_LIBS}
-    )
-
 elseif(FRAMEWORK STREQUAL "LIBTORCH")
+    unset(USE_ONNX_RUNTIME CACHE)
+    unset(USE_TENSORRT CACHE)
+    add_compile_definitions(USE_LIBTORCH)
     # Set the path to LibTorch (modify accordingly)
     set(Torch_DIR $ENV{HOME}/libtorch/share/cmake/Torch)
 
     find_package(Torch REQUIRED)
 
-    # Create the executable
-    add_executable(${PROJECT_NAME} ${SOURCES})
-
-    # Link against the LibTorch library
-    target_link_libraries(${PROJECT_NAME}
-        ${TORCH_LIBRARIES}
-    )
-
 elseif(FRAMEWORK STREQUAL "TENSORRT")
+    unset(USE_ONNX_RUNTIME CACHE)
+    unset(USE_LIBTORCH CACHE)
+    add_compile_definitions(USE_TENSORRT)
     # Set the path to TensorRT (modify accordingly)
     set(TENSORRT_DIR /path/to/tensorrt)
 
@@ -58,22 +52,43 @@ elseif(FRAMEWORK STREQUAL "TENSORRT")
     # Link directories
     link_directories(${TENSORRT_DIR}/lib)
 
-    # Create the executable
-    add_executable(${PROJECT_NAME} ${SOURCES})
+else()
+    message(FATAL_ERROR "Invalid framework selected")
+endif()
 
-    # Link against the TensorRT library
+# Create the executable
+add_executable(${PROJECT_NAME} ${SOURCES})
+
+# Link against OpenCV and the selected framework libraries
+target_link_libraries(${PROJECT_NAME}
+    ${OpenCV_LIBS}
+)
+
+# Link against the ONNX Runtime library if selected
+if(FRAMEWORK STREQUAL "ONNX_RUNTIME")
+    target_link_libraries(${PROJECT_NAME}
+        ${ONNX_RUNTIME_DIR}/lib/libonnxruntime.so
+    )
+endif()
+
+# Link against the LibTorch library if selected
+if(FRAMEWORK STREQUAL "LIBTORCH")
+    target_link_libraries(${PROJECT_NAME}
+        ${TORCH_LIBRARIES}
+    )
+endif()
+
+# Link against the TensorRT library if selected
+if(FRAMEWORK STREQUAL "TENSORRT")
     target_link_libraries(${PROJECT_NAME}
         ${TENSORRT_DIR}/lib/nvinfer.lib
     )
-
-else()
-    message(FATAL_ERROR "Invalid framework selected")
 endif()
 
 # Set the appropriate compiler flags
 if(CMAKE_CUDA_COMPILER AND FRAMEWORK STREQUAL "TENSORRT")
     # If CUDA is available and TensorRT is selected, set the CUDA flags
-    set_target_properties(TrashICRAInference PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    set_target_properties(${PROJECT_NAME} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-extended-lambda")
 else()
     # If CUDA is not available or a different framework is selected, set the CPU flags

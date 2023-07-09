@@ -1,17 +1,26 @@
 #include <iostream>
 #include "cxxopts.hpp"
-#include "YoloV8ONNX.hpp"
+#include "common.hpp"
 
-std::unique_ptr<YoloV8> createYoloV8(const std::string& framework, const std::string& weights) {
-    if (framework == "ONNX_RUNTIME") {
-        return std::make_unique<YoloV8ONNX>(weights);
-    } else if (framework == "LIBTORCH") {
-        return nullptr;
-    } else if (framework == "TENSORRT") {
-        return nullptr;
-    } else {
-        return nullptr;
-    }
+// Include the appropriate header based on the selected framework
+#ifdef USE_ONNX_RUNTIME
+#include "YoloV8ONNX.hpp"
+#elif USE_LIBTORCH
+#include "YoloV8Libtorch.hpp"
+#elif USE_TENSORRT
+#include "YoloV8TensorRT.hpp"
+#endif
+
+std::unique_ptr<YoloV8> createYoloV8(const std::string& weights) {
+#ifdef USE_ONNX_RUNTIME
+    return std::make_unique<YoloV8ONNX>(weights);
+#elif USE_LIBTORCH
+    return std::make_unique<YoloV8Libtorch>(weights);
+#elif USE_TENSORRT
+    return std::make_unique<YoloV8TensorRT>(weights);
+#else
+    return nullptr;
+#endif
 }
 
 int main(int argc, char* argv[]) {
@@ -19,7 +28,6 @@ int main(int argc, char* argv[]) {
 
     // Add command line options
     options.add_options()
-        ("f,framework", "Selected framework (ONNX_RUNTIME, LIBTORCH, or TENSORRT)", cxxopts::value<std::string>())
         ("w,weights", "Path to weights", cxxopts::value<std::string>())
         ("v,video", "Path to video source", cxxopts::value<std::string>())
         ("h,help", "Print help");
@@ -30,11 +38,6 @@ int main(int argc, char* argv[]) {
     if (result.count("help")) {
         std::cout << options.help() << std::endl;
         return 0;
-    }
-
-    if (!result.count("framework")) {
-        std::cerr << "Framework not specified. Use the --framework option." << std::endl;
-        return 1;
     }
 
     if (!result.count("weights")) {
@@ -48,11 +51,10 @@ int main(int argc, char* argv[]) {
     }
 
 
-    std::string framework = result["framework"].as<std::string>();
     std::string weights = result["weights"].as<std::string>();
     std::string video = result["video"].as<std::string>();
 
-    std::unique_ptr<YoloV8> yolo = createYoloV8(framework,weights);
+    std::unique_ptr<YoloV8> yolo = createYoloV8(weights);
     if (!yolo) {
         std::cerr << "Invalid framework specified. Supported frameworks are ONNX_RUNTIME, LIBTORCH, and TENSORRT." << std::endl;
         return 1;
