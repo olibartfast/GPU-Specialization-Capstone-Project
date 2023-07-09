@@ -30,6 +30,7 @@ int main(int argc, char* argv[]) {
     options.add_options()
         ("w,weights", "Path to weights", cxxopts::value<std::string>())
         ("v,video", "Path to video source", cxxopts::value<std::string>())
+        ("gpu", "Is gpu wanted", cxxopts::value<bool>()->default_value("false"))
         ("h,help", "Print help");
 
     // Parse command line arguments
@@ -47,6 +48,11 @@ int main(int argc, char* argv[]) {
 
     if (!result.count("video")) {
         std::cerr << "video input source not specified. Use the --video option." << std::endl;
+        return 1;
+    }
+
+    if (!result.count("gpu")) {
+        std::cerr << "gpu input not specified. Use the --gpu option." << std::endl;
         return 1;
     }
 
