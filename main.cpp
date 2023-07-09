@@ -11,11 +11,11 @@
 #include "YoloV8TRT.hpp"
 #endif
 
-std::unique_ptr<YoloV8> createYoloV8(const std::string& weights) {
+std::unique_ptr<YoloV8> createYoloV8(const std::string& weights, const bool is_gpu) {
 #ifdef USE_ONNX_RUNTIME
-    return std::make_unique<YoloV8ONNX>(weights);
+    return std::make_unique<YoloV8ONNX>(weights, is_gpu);
 #elif USE_LIBTORCH
-    return std::make_unique<YoloV8Libtorch>(weights);
+    return std::make_unique<YoloV8Libtorch>(weights, is_gpu);
 #elif USE_TENSORRT
     return std::make_unique<YoloV8TRT>(weights);
 #else
@@ -59,8 +59,9 @@ int main(int argc, char* argv[]) {
 
     std::string weights = result["weights"].as<std::string>();
     std::string video = result["video"].as<std::string>();
+    bool is_gpu = result["gpu"].as<bool>();
 
-    std::unique_ptr<YoloV8> yolo = createYoloV8(weights);
+    std::unique_ptr<YoloV8> yolo = createYoloV8(weights,is_gpu);
     if (!yolo) {
         std::cerr << "Invalid framework specified. Supported frameworks are ONNX_RUNTIME, LIBTORCH, and TENSORRT." << std::endl;
         return 1;
