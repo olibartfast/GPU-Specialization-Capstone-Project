@@ -8,7 +8,7 @@
 #elif USE_LIBTORCH
 #include "YoloV8Libtorch.hpp"
 #elif USE_TENSORRT
-#include "YoloV8TensorRT.hpp"
+#include "YoloV8TRT.hpp"
 #endif
 
 std::unique_ptr<YoloV8> createYoloV8(const std::string& weights) {
@@ -17,7 +17,7 @@ std::unique_ptr<YoloV8> createYoloV8(const std::string& weights) {
 #elif USE_LIBTORCH
     return std::make_unique<YoloV8Libtorch>(weights);
 #elif USE_TENSORRT
-    return std::make_unique<YoloV8TensorRT>(weights);
+    return std::make_unique<YoloV8TRT>(weights);
 #else
     return nullptr;
 #endif

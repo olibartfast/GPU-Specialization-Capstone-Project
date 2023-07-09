@@ -16,7 +16,7 @@ Before proceeding, ensure that you have the following dependencies installed:
 - CMake (version >= 3.12)
 - ONNX Runtime 1.15.1
 - LibTorch 
-- TensorRT 
+- TensorRT 8.6.1.6
 
 ## Instructions
 
