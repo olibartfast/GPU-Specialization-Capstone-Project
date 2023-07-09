@@ -1,6 +1,6 @@
 # The Underwater Trash Instance Segmentation YoloV8 Inference
 
-This README provides instructions for performing c++ inference on the [The Underwater Trash Instance Segmentation Dataset](https://conservancy.umn.edu/handle/11299/214865) using various frameworks having both CPU and GPU backends, with the aim of showcasing the differences in inference time between these two devices. The dataset with all the training procedure are available at the link [https://learnopencv.com/train-yolov8-instance-segmentation/](https://learnopencv.com/train-yolov8-instance-segmentation/).  
+This README provides instructions for performing c++ inference on the [The Underwater Trash Instance Segmentation Dataset](https://conservancy.umn.edu/handle/11299/214865) using various frameworks having both CPU and GPU backends, with the aim of showcasing the differences in inference time between these two devices. The dataset with all the training procedure is available at the link [https://learnopencv.com/train-yolov8-instance-segmentation/](https://learnopencv.com/train-yolov8-instance-segmentation/).  
 
 I'm, planning to cover the following frameworks and backends:
 
