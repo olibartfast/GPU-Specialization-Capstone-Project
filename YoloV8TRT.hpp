@@ -23,12 +23,24 @@ private:
     std::shared_ptr<nvinfer1::ICudaEngine> engine_{nullptr};
     nvinfer1::IExecutionContext* context_{nullptr};
     std::vector<void*> buffers_;
-    std::vector<cv::Size> input_shapes_;
-
+    std::vector<nvinfer1::Dims> output_dims_; // and one output
+    std::vector<std::vector<float>> h_outputs_;
     nvinfer1::IRuntime* runtime_{nullptr};
 
 public:
-    // Constructor
+
+    // calculate size of tensor
+    size_t getSizeByDim(const nvinfer1::Dims& dims)
+    {
+        size_t size = 1;
+        for (size_t i = 0; i < dims.nbDims; ++i)
+        {
+            std::cout << dims.d[i] << std::endl;
+            size *= dims.d[i];
+        }
+        return size;
+    }
+
     YoloV8TRT(const std::string& engine_path)
     {
         Logger logger;
@@ -50,11 +62,12 @@ public:
 
         // Create execution context and allocate input/output buffers
         context_ = engine_->createExecutionContext();
-        int num_bindings = engine_.get()->getNbBindings();
-        buffers_.resize(num_bindings);
-        for (int i = 0; i < num_bindings; ++i)
+        buffers_.resize(engine_->getNbBindings()); // buffers for input and output data
+        for (int i = 0; i < engine_->getNbBindings(); ++i)
         {
             nvinfer1::Dims dims = engine_.get()->getBindingDimensions(i);
+            auto binding_size = getSizeByDim(engine_->getBindingDimensions(i)) * sizeof(float);
+            cudaMalloc(&buffers_[i], binding_size);
             if (engine_.get()->bindingIsInput(i))
             {
                 const auto input_shape = std::vector{dims.d[0], dims.d[1], dims.d[2], dims.d[3]};
@@ -62,6 +75,13 @@ public:
                 input_height_ = dims.d[2];
                 channels_ = dims.d[1];
             }
+            else
+            {
+                output_dims_.emplace_back(engine_->getBindingDimensions(i));
+                auto size = getSizeByDim(dims);
+                h_outputs_.emplace_back(std::vector<float>(size));
+
+            }           
         }
     }
 
@@ -72,29 +92,131 @@ public:
         {
             cudaFree(buffer);
         }
-        context_->destroy();
-        runtime_->destroy();
     }
 
     void infer(const cv::Mat& image) override
     {
         // Preprocess the input image
-        std::vector<float> input_data = preprocess_image(image);
+        std::vector<float> h_input_data = preprocess_image(image);
+        cudaMemcpy(buffers_[0], h_input_data.data(), sizeof(float)*h_input_data.size(), cudaMemcpyHostToDevice);
 
-        // // Copy input data to the GPU buffer
-        // cudaMemcpy(buffers_[0], input_data.data(), input_data.size() * sizeof(float), cudaMemcpyHostToDevice);
+        if(context_->enqueueV2(buffers_.data(), 0, nullptr))
+            std::cout << "Forward success !" << std::endl;
+         else
+            std::cout << "Forward Error !" << std::endl;
 
-        // // Run inference
-        // context_->executeV2(buffers_.data());
+        for (size_t i = 0; i < h_outputs_.size(); i++)
+            cudaMemcpy(h_outputs_[i].data(), buffers_[i + 1], h_outputs_[i].size() * sizeof(float), cudaMemcpyDeviceToHost);
 
-        // // Get output tensor data
-        // std::vector<float> output0_data(output_shapes_[0].total());
-        // cudaMemcpy(output0_data.data(), buffers_[1], output0_data.size() * sizeof(float), cudaMemcpyDeviceToHost);
+        const float* output_mask = h_outputs_[0].data();
+        const float* output_boxes = h_outputs_[1].data();
 
-        // Process output data and draw predictions
-        // ...
+        const int* shape_mask = reinterpret_cast<const int*>(output_dims_[0].d);
+        const int* shape_boxes = reinterpret_cast<const int*>(output_dims_[1].d);
+
+
+        const auto offset = 4;
+        const auto num_classes = shape_boxes[1] - offset - shape_mask[1];
+        std::vector<std::vector<float>> output_boxes_matrix(shape_boxes[1], std::vector<float>(shape_boxes[2]));
+
+        // Construct output matrix
+        for (int i = 0; i < shape_boxes[1]; ++i) {
+            for (int j = 0; j < shape_boxes[2]; ++j) {
+                output_boxes_matrix[i][j] = output_boxes[i * shape_boxes[2] + j];
+            }
+        }
+
+        std::vector<std::vector<float>> transposed_output_boxes(shape_boxes[2], std::vector<float>(shape_boxes[1]));
+
+        // Transpose output matrix
+        for (int i = 0; i < shape_boxes[1]; ++i) {
+            for (int j = 0; j < shape_boxes[2]; ++j) {
+                transposed_output_boxes[j][i] = output_boxes_matrix[i][j];
+            }
+        }
+
+        std::vector<cv::Rect> boxes;
+        std::vector<float> confs;
+        std::vector<int> classIds;
+        const auto conf_threshold = 0.25f;
+        const auto iou_threshold = 0.4f;
+        cv::Size frame_size(image.cols, image.rows);
+        std::vector<std::vector<float>> picked_proposals;
+
+        // Get all the YOLO proposals
+        for (int i = 0; i < shape_boxes[2]; ++i) {
+            const auto& row = transposed_output_boxes[i];
+            const float* bboxesPtr = row.data();
+            const float* scoresPtr = bboxesPtr + 4;
+            auto maxSPtr = std::max_element(scoresPtr, scoresPtr + num_classes);
+            float score = *maxSPtr;
+            if (score > conf_threshold) {
+                boxes.emplace_back(get_rect(frame_size, std::vector<float>(bboxesPtr, bboxesPtr + 4)));
+                int label = maxSPtr - scoresPtr;
+                std::cout << label<<std::endl;
+                confs.emplace_back(score);
+                classIds.emplace_back(label);
+                picked_proposals.emplace_back(std::vector<float>(scoresPtr + num_classes, scoresPtr + num_classes + shape_mask[1]));
+            }
+        }
+
+        // Perform Non Maximum Suppression and draw predictions.
+        std::vector<int> indices;
+        cv::dnn::NMSBoxes(boxes, confs, conf_threshold, iou_threshold, indices);
+        std::vector<Detection> detections;
+        std::vector<std::vector<float>> raw_mask_proposals;
+        cv::Mat maskProposals;
+        for (int i = 0; i < indices.size(); i++) 
+        {
+            Detection det;
+            int idx = indices[i];
+            det.label_id = classIds[idx];
+            det.bbox = boxes[idx];
+            det.score = confs[idx];
+            detections.emplace_back(det);
+            raw_mask_proposals.push_back(picked_proposals[idx]);
+            maskProposals.push_back( cv::Mat(raw_mask_proposals[i]).t() );
+        }
+
+            
+
+        cv::Mat frame = image.clone();
+        cv::Mat frame_with_mask = image.clone();
+        for (int i = 0; i < detections.size(); ++i) {
+
+            int sc, sh, sw;
+            std::tie(sc, sh, sw) = std::make_tuple(static_cast<int>(shape_mask[1]), static_cast<int>(shape_mask[2]), static_cast<int>(shape_mask[3]));
+            cv::Mat protos = cv::Mat(std::vector<float>(output_mask, output_mask + sc*sh*sw)).reshape(0, { sc, sw*sh}); 
+            cv::Mat masks = cv::Mat((maskProposals * protos).t()).reshape(detections.size(), { sw, sh });
+            std::vector<cv::Mat> maskChannels;
+            cv::split(masks, maskChannels);           
+    
+            cv::Mat mask;
+
+            // Sigmoid
+            cv::exp(-maskChannels[i], mask);
+            mask = 1.0 / (1.0 + mask); // 160*160
+
+            cv::Rect segPadRect = getSegPadSize(input_width_, input_height_, frame_size);
+            cv::Rect roi(int((float)segPadRect.x / input_width_ * sw), int((float)segPadRect.y / input_height_ * sh), int(sw - segPadRect.x / 2), int(sh - segPadRect.y / 2));
+            mask = mask(roi);
+            cv::resize(mask, mask, image.size(), cv::INTER_NEAREST);
+
+            cv::Rect temp_rect = detections[i].bbox;
+            cv::rectangle(frame, temp_rect, cv::Scalar(255,0,0));
+            const float mask_thresh = 0.5f;
+            mask = mask(temp_rect) > mask_thresh;		
+            frame_with_mask(temp_rect).setTo(cv::Scalar(255,0,0), mask);
+        }    
+
+        cv::addWeighted(frame, 0.5, frame_with_mask, 0.5, 0, frame); 
+
+        cv::imshow("", frame);
+        cv::waitKey(1);
+
 
         // Release CUDA resources
         cudaDeviceSynchronize();
     }
 };
+ 
