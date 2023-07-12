@@ -11,6 +11,7 @@ I'm, planning to cover the following frameworks and backends:
 
 Before proceeding, ensure that you have the following dependencies installed:
 
+- C++ compiler with C++17 support
 - CMake (used 3.22.1)
 - ONNX Runtime 1.15.1 gpu package
 - LibTorch 2.0.1-cu118
@@ -32,7 +33,7 @@ Then install YoloV8 [following official documentation](https://docs.ultralytics.
 To export the model in the TorchScript format:
 
 ```
-yolo export model=best.pt format=torchscript
+yolo export model=best.pt format=torchscript device=0
 ```
 
 #### OnnxRuntime
@@ -64,39 +65,20 @@ By following these steps, you can successfully export the model in the desired f
 
 To build the project with a specific backend, you need to configure CMake with the appropriate parameters. Open a terminal and navigate to the project directory. Then, follow the instructions based on your desired backend:
 
-#### LibTorch Backend
+#### Build for a specific Backend
 
 Run the following commands:
 
 ```shell
-cmake -D FRAMEWORK=LIBTORCH ..
+cmake -D FRAMEWORK=LIBTORCH(or ONNX_RUNTIME or TENSORRT) ..
 cmake --build .
 ```
-
-#### ONNX Runtime Backend
-
-Run the following commands:
-
-```shell
-cmake -D FRAMEWORK=ONNX_RUNTIME ..
-cmake --build .
-```
-
-#### TensorRT Backend
-
-Run the following commands:
-
-```shell
-cmake -D FRAMEWORK=TENSORRT ..
-cmake --build .
-```
-
 ### Step 2: Run the Program
 
 Once the build process is complete, you can run the program with the specified backend. Use the following command:
 
 ```shell
-./UnderwaterTrashInstanceSegmentation --weights <path_to_weights> --video <path_to_video> --gpu <true_or_false>
+./UnderwaterTrashInstanceSegmentation --weights <path_to_weights> --video <path_to_video> --gpu=<true_or_false>
 ```
 
 Replace `<path_to_weights>` with the path to your weights file and `<path_to_video>` with the path to your video source. Set `<true_or_false>` to `true` if you want to use GPU acceleration (if available) or `false` to use CPU.
@@ -106,12 +88,13 @@ Replace `<path_to_weights>` with the path to your weights file and `<path_to_vid
 Here's an example command to run the program with LibTorch backend, using a `weights.pt` file and a `video.mp4` file:
 
 ```shell
-./UnderwaterTrashInstanceSegmentation --weights weights.pt --video video.mp4 --gpu true
+./UnderwaterTrashInstanceSegmentation --weights weights.pt --video video.mp4 --gpu=true
 ```
 
 ### Additional Notes
 
 - Make sure to adjust the paths and options in the CMakeLists.txt file according to your installation paths.
+- If you don't have a suitable video for testing, you can use a video from the [Trash ICRA 2019 dataset](https://conservancy.umn.edu/handle/11299/214366). Please make sure to download the dataset and specify the path to the dataset video in the command.
 
 
 ### TODO/IN PROGRESS
