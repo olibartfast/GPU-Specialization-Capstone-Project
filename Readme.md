@@ -33,7 +33,7 @@ Then install YoloV8 [following official documentation](https://docs.ultralytics.
 To export the model in the TorchScript format:
 
 ```
-yolo export model=best.pt format=torchscript
+yolo export model=best.pt format=torchscript device=0
 ```
 
 #### OnnxRuntime
@@ -65,33 +65,14 @@ By following these steps, you can successfully export the model in the desired f
 
 To build the project with a specific backend, you need to configure CMake with the appropriate parameters. Open a terminal and navigate to the project directory. Then, follow the instructions based on your desired backend:
 
-#### LibTorch Backend
+#### Build for a specific Backend
 
 Run the following commands:
 
 ```shell
-cmake -D FRAMEWORK=LIBTORCH ..
+cmake -D FRAMEWORK=LIBTORCH(or ONNX_RUNTIME or TENSORRT) ..
 cmake --build .
 ```
-
-#### ONNX Runtime Backend
-
-Run the following commands:
-
-```shell
-cmake -D FRAMEWORK=ONNX_RUNTIME ..
-cmake --build .
-```
-
-#### TensorRT Backend
-
-Run the following commands:
-
-```shell
-cmake -D FRAMEWORK=TENSORRT ..
-cmake --build .
-```
-
 ### Step 2: Run the Program
 
 Once the build process is complete, you can run the program with the specified backend. Use the following command:
