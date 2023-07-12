@@ -11,9 +11,9 @@ I'm, planning to cover the following frameworks and backends:
 
 Before proceeding, ensure that you have the following dependencies installed:
 
-- CMake (version >= 3.12)
-- ONNX Runtime 1.15.1
-- LibTorch 
+- CMake (used 3.22.1)
+- ONNX Runtime 1.15.1 gpu package
+- LibTorch 2.0.1-cu118
 - TensorRT 8.6.1.6
 
 ## Instructions
