@@ -11,6 +11,7 @@ I'm, planning to cover the following frameworks and backends:
 
 Before proceeding, ensure that you have the following dependencies installed:
 
+- C++ compiler with C++17 support
 - CMake (used 3.22.1)
 - ONNX Runtime 1.15.1 gpu package
 - LibTorch 2.0.1-cu118
@@ -96,7 +97,7 @@ cmake --build .
 Once the build process is complete, you can run the program with the specified backend. Use the following command:
 
 ```shell
-./UnderwaterTrashInstanceSegmentation --weights <path_to_weights> --video <path_to_video> --gpu <true_or_false>
+./UnderwaterTrashInstanceSegmentation --weights <path_to_weights> --video <path_to_video> --gpu=<true_or_false>
 ```
 
 Replace `<path_to_weights>` with the path to your weights file and `<path_to_video>` with the path to your video source. Set `<true_or_false>` to `true` if you want to use GPU acceleration (if available) or `false` to use CPU.
@@ -106,9 +107,10 @@ Replace `<path_to_weights>` with the path to your weights file and `<path_to_vid
 Here's an example command to run the program with LibTorch backend, using a `weights.pt` file and a `video.mp4` file:
 
 ```shell
-./UnderwaterTrashInstanceSegmentation --weights weights.pt --video video.mp4 --gpu true
+./UnderwaterTrashInstanceSegmentation --weights weights.pt --video video.mp4 --gpu=true
 ```
 
 ### Additional Notes
 
 - Make sure to adjust the paths and options in the CMakeLists.txt file according to your installation paths.
+- If you don't have a suitable video for testing, you can use a video from the [Trash ICRA 2019 dataset](https://conservancy.umn.edu/handle/11299/214366). Please make sure to download the dataset and specify the path to the dataset video in the command.
