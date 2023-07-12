@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 project(UnderwaterTrashInstanceSegmentation)
 
 # Set C++ standard
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
 # Find OpenCV package
 find_package(OpenCV REQUIRED)
@@ -36,6 +36,7 @@ elseif(FRAMEWORK STREQUAL "LIBTORCH")
     set(Torch_DIR $ENV{HOME}/libtorch/share/cmake/Torch/)
     message(STATUS "${Torch_DIR}")
     find_package(Torch REQUIRED)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 elseif(FRAMEWORK STREQUAL "TENSORRT")
     unset(USE_ONNX_RUNTIME CACHE)
