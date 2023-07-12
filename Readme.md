@@ -112,3 +112,9 @@ Here's an example command to run the program with LibTorch backend, using a `wei
 ### Additional Notes
 
 - Make sure to adjust the paths and options in the CMakeLists.txt file according to your installation paths.
+
+
+### TODO/IN PROGRESS
+
+- Inference metrics and comparisons using one between yolov8s or yolov8m model
+- Write or Show a processed video with label and fps info
