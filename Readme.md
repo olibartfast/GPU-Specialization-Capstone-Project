@@ -59,14 +59,3 @@ trtexec --onnx=best.onnx --saveEngine=best.engine
 
 By following these steps, you can successfully export the model in the desired formats for further inference.
 
-
-
- **TODO/IN PROGRESS For each inference framework**
-
-   - Install by following the instructions provided in the official documentation.
-   - Load the pretrained weights into the inference session.
-   - Write a C++ program using the relative API to perform inference on the weights trainded on the dataset.
-   - Measure the inference time by capturing the start and end times around the inference code.
-   - Compile the C++ program using the appropriate compiler flags and link against the runtime CPU or GPU library.
-   - Run the executable to perform inference on the dataset using the respective backend (CPU or GPU).
-
