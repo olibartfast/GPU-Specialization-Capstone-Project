@@ -41,6 +41,24 @@ public:
 
     void infer(const cv::Mat& image) override
     {
-        // Implementation of infer function...
+        // Preprocess the input image
+        std::vector<float> input_tensor = preprocess_image(image);
+
+        // Convert the input tensor to a Torch tensor
+        torch::Tensor input = torch::from_blob(input_tensor.data(), { 1, channels_, input_height_, input_width_ }, torch::kFloat32);
+        input = input.permute({ 0, 2, 3, 1 });
+        input = input.to(device_);
+
+        // Run inference
+        std::vector<torch::jit::IValue> inputs;
+        inputs.push_back(input);
+        torch::Tensor output = module_.forward(inputs).toTensor();
+
+        // Postprocess the output tensor
+        // Implementation of postprocessing...
+
+        // Print the shape of the output tensor
+        std::cout << "Output tensor shape: " << print_shape(output.sizes().vec()) << std::endl;
+
     }
 };
