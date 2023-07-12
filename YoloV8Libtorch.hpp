@@ -46,19 +46,24 @@ public:
 
         // Convert the input tensor to a Torch tensor
         torch::Tensor input = torch::from_blob(input_tensor.data(), { 1, channels_, input_height_, input_width_ }, torch::kFloat32);
-        input = input.permute({ 0, 2, 3, 1 });
         input = input.to(device_);
 
         // Run inference
         std::vector<torch::jit::IValue> inputs;
         inputs.push_back(input);
-        torch::Tensor output = module_.forward(inputs).toTensor();
+        auto output = module_.forward(inputs);
+        torch::Tensor t0 = output.toTuple()->elements()[0].toTensor();
+        torch::Tensor t1 = output.toTuple()->elements()[1].toTensor();
+
+        // Print the shapes
+        std::cout << "t0 shape: " << t0.sizes() << std::endl;
+        std::cout << "t1 shape: " << t1.sizes() << std::endl;
 
         // Postprocess the output tensor
         // Implementation of postprocessing...
 
         // Print the shape of the output tensor
-        std::cout << "Output tensor shape: " << print_shape(output.sizes().vec()) << std::endl;
+        // std::cout << "Output tensor shape: " << print_shape(output.sizes().vec()) << std::endl;
 
     }
 };

@@ -33,7 +33,7 @@ elseif(FRAMEWORK STREQUAL "LIBTORCH")
     message(STATUS "Set libtorch")
     add_compile_definitions(USE_LIBTORCH)
     # Set the path to LibTorch (modify accordingly)
-    set(Torch_DIR $ENV{HOME}/libtorch-cxx11-abi-shared-with-deps-2.0.1+cpu/libtorch/share/cmake/Torch/)
+    set(Torch_DIR $ENV{HOME}/libtorch/share/cmake/Torch/)
     message(STATUS "${Torch_DIR}")
     find_package(Torch REQUIRED)
 
