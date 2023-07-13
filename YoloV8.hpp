@@ -2,12 +2,6 @@
 #include "common.hpp"
 
 
-struct Mask{
-    std::vector<size_t> segShapes;
-    std::vector<float> raw_mask_protos;
-    std::vector<std::vector<float>> raw_mask_proposals;
-};
-
 struct Detection{
     cv::Rect bbox;
     float score;
@@ -212,7 +206,8 @@ protected:
             mask = mask(roi);
             cv::resize(mask, mask, frame_size, cv::INTER_NEAREST);
             const float mask_thresh = 0.5f;
-            detections[i].boxMask =  mask(detections[i].bbox) > mask_thresh; 
+            mask = mask(detections[i].bbox) > mask_thresh;
+            detections[i].boxMask = mask.clone(); 
 
         }
         return detections;
