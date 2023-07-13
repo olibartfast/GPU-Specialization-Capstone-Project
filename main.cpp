@@ -70,7 +70,16 @@ int main(int argc, char* argv[]) {
     cv::Mat frame;
     while(cap.read(frame))
     {
-        yolo->infer(frame);
+        const auto detections = yolo->infer(frame);
+        cv::Mat frame_with_mask = frame.clone();
+        for (int i = 0; i < detections.size(); ++i) 
+        {
+            cv::rectangle(frame, detections[i].bbox, cv::Scalar(255, 0, 0));
+            frame_with_mask(detections[i].bbox).setTo(cv::Scalar(255, 0, 0), detections[i].boxMask);
+        }
+        cv::addWeighted(frame, 0.5, frame_with_mask, 0.5, 0, frame);
+        cv::imshow("", frame);
+        cv::waitKey(1);
 
     }
 
