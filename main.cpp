@@ -68,6 +68,18 @@ int main(int argc, char* argv[]) {
     }
     cv::VideoCapture cap(video);
     cv::Mat frame;
+
+// #ifdef WRITE_FRAME
+    cv::VideoWriter outputVideo;
+    cv::Size S = cv::Size((int)cap.get(cv::CAP_PROP_FRAME_WIDTH),    // Acquire input size
+        (int)cap.get(cv::CAP_PROP_FRAME_HEIGHT));
+    int codec = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
+    outputVideo.open("processed.avi", codec, cap.get(cv::CAP_PROP_FPS), S, true);
+    if (!outputVideo.isOpened()) {
+        std::cout << "Could not open the output video for write: " << video << std::endl;
+        return -1;
+    }
+//#endif
     while(cap.read(frame))
     {
         const auto detections = yolo->infer(frame);
@@ -80,6 +92,9 @@ int main(int argc, char* argv[]) {
         cv::addWeighted(frame, 0.5, frame_with_mask, 0.5, 0, frame);
         cv::imshow("", frame);
         cv::waitKey(1);
+//#ifdef WRITE_FRAME
+        outputVideo.write(frame);
+//#endif        
 
     }
 
