@@ -138,9 +138,10 @@ public:
 
         const int* shape_mask_ptr = reinterpret_cast<const int*>(output_dims_[0].d);
         const int* shape_boxes_ptr = reinterpret_cast<const int*>(output_dims_[1].d);
-        std::vector<int> shape_mask(shape_mask_ptr, shape_mask_ptr + output_dims_[0].nbDims);
-        std::vector<int> shape_boxes(shape_boxes_ptr, shape_boxes_ptr + output_dims_[1].nbDims)
+        std::vector<int64_t> shape_mask(shape_mask_ptr, shape_mask_ptr + output_dims_[0].nbDims);
+        std::vector<int64_t> shape_boxes(shape_boxes_ptr, shape_boxes_ptr + output_dims_[1].nbDims);
         cv::Size frame_size(image.cols, image.rows);
-        return postprocess(output0, output1, shape0, shape1, frame_size);        
+        return postprocess(output_boxes, output_mask, shape_boxes, shape_mask, frame_size);   
+    }     
 };
  
