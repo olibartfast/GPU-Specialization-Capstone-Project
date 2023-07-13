@@ -125,10 +125,12 @@ public:
         std::vector<float> h_input_data = preprocess_image(image);
         cudaMemcpy(buffers_[0], h_input_data.data(), sizeof(float)*h_input_data.size(), cudaMemcpyHostToDevice);
 
-        if(context_->enqueueV2(buffers_.data(), 0, nullptr))
-            std::cout << "Forward success !" << std::endl;
-         else
+        if(!context_->enqueueV2(buffers_.data(), 0, nullptr))
+        {
             std::cout << "Forward Error !" << std::endl;
+            std::exit(1);
+        }
+           
 
         for (size_t i = 0; i < h_outputs_.size(); i++)
             cudaMemcpy(h_outputs_[i].data(), buffers_[i + 1], h_outputs_[i].size() * sizeof(float), cudaMemcpyDeviceToHost);
