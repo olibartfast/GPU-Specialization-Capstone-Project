@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(OpenCV REQUIRED)
 
 # Set the path to the selected framework (modify accordingly)
-set(FRAMEWORK "LIBTORCH")  # Options: ONNX_RUNTIME, LIBTORCH, TENSORRT
+set(FRAMEWORK "TENSORRT")  # Options: ONNX_RUNTIME, LIBTORCH, TENSORRT
 
 # Set the source files for your project
 set(SOURCES main.cpp)

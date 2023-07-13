@@ -6,8 +6,15 @@ struct Detection{
     cv::Rect bbox;
     float score;
     float label_id;
-    cv::Mat boxMask;
 };
+
+struct Mask
+{
+    std::vector<cv::Mat> maskProposals;
+    cv::Mat protos;
+    cv::Rect maskRoi;
+};
+
 
 class YoloV8 {
 protected:
@@ -122,7 +129,7 @@ protected:
         return input_data;
     }
 
-    std::vector<Detection> postprocess(const float*  output0, const float*  output1, const  std::vector<int64_t>& shape0,  const std::vector<int64_t>& shape1, const cv::Size& frame_size)
+    std::tuple<std::vector<Detection>, Mask> postprocess(const float*  output0, const float*  output1, const  std::vector<int64_t>& shape0,  const std::vector<int64_t>& shape1, const cv::Size& frame_size)
     {
 
         const auto offset = 4;
@@ -173,8 +180,13 @@ protected:
         std::vector<int> indices;
         cv::dnn::NMSBoxes(boxes, confs, conf_threshold, iou_threshold, indices);
         std::vector<Detection> detections;
-        std::vector<std::vector<float>> raw_mask_proposals;
-        cv::Mat maskProposals;
+        Mask segMask;
+        int sc, sh, sw;
+        std::tie(sc, sh, sw) = std::make_tuple(static_cast<int>(shape1[1]), static_cast<int>(shape1[2]), static_cast<int>(shape1[3]));
+        cv::Mat(std::vector<float>(output1, output1 + sc * sh * sw)).reshape(0, { sc, sw * sh }).copyTo(segMask.protos);        
+        cv::Rect segPadRect = getSegPadSize(input_width_, input_height_, frame_size);
+        cv::Rect roi(int((float)segPadRect.x / input_width_ * sw), int((float)segPadRect.y / input_height_ * sh), int(sw - segPadRect.x / 2), int(sh - segPadRect.y / 2));
+        segMask.maskRoi = roi; 
         for (int i = 0; i < indices.size(); i++)
         {
             Detection det;
@@ -183,39 +195,14 @@ protected:
             det.bbox = boxes[idx];
             det.score = confs[idx];
             detections.emplace_back(det);
-            raw_mask_proposals.push_back(picked_proposals[idx]);
-            maskProposals.push_back(cv::Mat(raw_mask_proposals[i]).t());
+            segMask.maskProposals.emplace_back(cv::Mat(picked_proposals[idx]).t());
         }
-
-        for (int i = 0; i < detections.size(); ++i) {
-
-            int sc, sh, sw;
-            std::tie(sc, sh, sw) = std::make_tuple(static_cast<int>(shape1[1]), static_cast<int>(shape1[2]), static_cast<int>(shape1[3]));
-            cv::Mat protos = cv::Mat(std::vector<float>(output1, output1 + sc * sh * sw)).reshape(0, { sc, sw * sh });
-            cv::Mat masks = cv::Mat((maskProposals * protos).t()).reshape(detections.size(), { sw, sh });
-            std::vector<cv::Mat> maskChannels;
-            cv::split(masks, maskChannels);
-
-            cv::Mat mask;
-
-            // Sigmoid
-            cv::exp(-maskChannels[i], mask);
-            mask = 1.0 / (1.0 + mask); // 160*160
-            cv::Rect segPadRect = getSegPadSize(input_width_, input_height_, frame_size);
-            cv::Rect roi(int((float)segPadRect.x / input_width_ * sw), int((float)segPadRect.y / input_height_ * sh), int(sw - segPadRect.x / 2), int(sh - segPadRect.y / 2));
-            mask = mask(roi);
-            cv::resize(mask, mask, frame_size, cv::INTER_NEAREST);
-            const float mask_thresh = 0.5f;
-            mask = mask(detections[i].bbox) > mask_thresh;
-            detections[i].boxMask = mask.clone(); 
-
-        }
-        return detections;
+        return std::make_tuple(detections, segMask);
     }
 
 
 
 
 public:
-    virtual std::vector<Detection> infer(const cv::Mat& image) = 0;
+    virtual std::tuple<std::vector<Detection>, Mask> infer(const cv::Mat& image) = 0;
 };

@@ -119,7 +119,7 @@ public:
         }
     }
 
-    std::vector<Detection> infer(const cv::Mat& image) override
+    std::tuple<std::vector<Detection>, Mask> infer(const cv::Mat& image) override
     {
         // Preprocess the input image
         std::vector<float> h_input_data = preprocess_image(image);

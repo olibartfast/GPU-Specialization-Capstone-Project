@@ -146,13 +146,29 @@ int main(int argc, char* argv[]) {
 
     while(cap.read(frame))
     {
-         auto start_time = std::chrono::steady_clock::now();
-        const auto detections = yolo->infer(frame);
+        auto start_time = std::chrono::steady_clock::now();
+        const auto [detections, segMask] = yolo->infer(frame);
         cv::Mat frame_with_mask = frame.clone();
+        const auto maskProposals = segMask.maskProposals;
+        const auto protos = segMask.protos;
+        const auto roi = segMask.maskRoi;
         for (int i = 0; i < detections.size(); ++i) 
         {
+            cv::Mat masks = cv::Mat((maskProposals[i] * protos).t()).reshape(detections.size(), {160, 160 });
+            std::vector<cv::Mat> maskChannels;
+            cv::split(masks, maskChannels);
+            cv::Mat mask;
+
+            // Sigmoid
+            cv::exp(-maskChannels[i], mask);
+            mask = 1.0 / (1.0 + mask); // 160*160
+        
+            mask = mask(roi);
+            cv::resize(mask, mask, cv::Size(frame.cols, frame.rows), cv::INTER_NEAREST);
+            const float mask_thresh = 0.5f;
+            mask = mask(detections[i].bbox) > mask_thresh;
             cv::rectangle(frame, detections[i].bbox, cv::Scalar(255, 0, 0));
-            frame_with_mask(detections[i].bbox).setTo(cv::Scalar(255, 0, 0), detections[i].boxMask);
+            frame_with_mask(detections[i].bbox).setTo(cv::Scalar(255, 0, 0), mask);
             
             // Write class label and score on the frame
             std::string label = classes[detections[i].label_id];
