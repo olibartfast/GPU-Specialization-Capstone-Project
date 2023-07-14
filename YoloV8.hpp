@@ -10,7 +10,7 @@ struct Detection{
 
 struct Mask
 {
-    std::vector<cv::Mat> maskProposals;
+    cv::Mat maskProposals;
     cv::Mat protos;
     cv::Rect maskRoi;
 };
@@ -187,6 +187,7 @@ protected:
         cv::Rect segPadRect = getSegPadSize(input_width_, input_height_, frame_size);
         cv::Rect roi(int((float)segPadRect.x / input_width_ * sw), int((float)segPadRect.y / input_height_ * sh), int(sw - segPadRect.x / 2), int(sh - segPadRect.y / 2));
         segMask.maskRoi = roi; 
+        cv::Mat maskProposals;
         for (int i = 0; i < indices.size(); i++)
         {
             Detection det;
@@ -195,8 +196,9 @@ protected:
             det.bbox = boxes[idx];
             det.score = confs[idx];
             detections.emplace_back(det);
-            segMask.maskProposals.emplace_back(cv::Mat(picked_proposals[idx]).t());
+            maskProposals.push_back(cv::Mat(picked_proposals[idx]).t());
         }
+        maskProposals.copyTo(segMask.maskProposals);
         return std::make_tuple(detections, segMask);
     }
 

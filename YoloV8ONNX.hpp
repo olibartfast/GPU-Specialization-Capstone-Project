@@ -79,7 +79,7 @@ public:
         }
     }
 
-    std::vector<Detection> infer(const cv::Mat& image) override
+     std::tuple<std::vector<Detection>, Mask> infer(const cv::Mat& image) override
     {
         
         std::vector<std::vector<float>> input_tensors(session_.GetInputCount());

@@ -152,11 +152,16 @@ int main(int argc, char* argv[]) {
         const auto maskProposals = segMask.maskProposals;
         const auto protos = segMask.protos;
         const auto roi = segMask.maskRoi;
+        cv::Mat masks;
+        std::vector<cv::Mat> maskChannels;
+        if(!detections.empty())
+        {
+            masks = cv::Mat((maskProposals * protos).t()).reshape(detections.size(), {160, 160 });
+            cv::split(masks, maskChannels);
+        }
+
         for (int i = 0; i < detections.size(); ++i) 
         {
-            cv::Mat masks = cv::Mat((maskProposals[i] * protos).t()).reshape(detections.size(), {160, 160 });
-            std::vector<cv::Mat> maskChannels;
-            cv::split(masks, maskChannels);
             cv::Mat mask;
 
             // Sigmoid
