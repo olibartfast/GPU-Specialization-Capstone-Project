@@ -73,23 +73,25 @@ Run the following commands:
 cmake -D FRAMEWORK=LIBTORCH(or ONNX_RUNTIME or TENSORRT) ..
 cmake --build .
 ```
-### Step 2: Run the Program
+## Step 2: Run the Program
 
 Once the build process is complete, you can run the program with the specified backend. Use the following command:
 
 ```shell
-./UnderwaterTrashInstanceSegmentation --weights <path_to_weights> --video <path_to_video> --gpu=<true_or_false>
+./UnderwaterTrashInstanceSegmentation --weights <path_to_weights> --video <path_to_video> --gpu=<true_or_false> --videowrite=<true_or_false> --imshow=<true_or_false>
 ```
 
-Replace `<path_to_weights>` with the path to your weights file and `<path_to_video>` with the path to your video source. Set `<true_or_false>` to `true` if you want to use GPU acceleration (if available) or `false` to use CPU.
+Replace `<path_to_weights>` with the path to your weights file, `<path_to_video>` with the path to your video source. Set `<true_or_false>` for `--gpu` to `true` if you want to enable GPU acceleration (if available) or `false` to use CPU. Set `<true_or_false>` for `--videowrite` to `true` if you want to enable video writing, or `false` to disable it. Set `<true_or_false>` for `--imshow` to `true` if you want to enable frame display, or `false` to disable it.
 
 ### Example Usage
 
-Here's an example command to run the program with LibTorch backend, using a `weights.pt` file and a `video.mp4` file:
+Here's an example command to run the program with LibTorch backend, using a `weights.pt` file, a `video.mp4` file, enabling video writing, and enabling frame display:
 
 ```shell
-./UnderwaterTrashInstanceSegmentation --weights weights.pt --video video.mp4 --gpu=true
+./UnderwaterTrashInstanceSegmentation --weights weights.pt --video video.mp4 --gpu=true --videowrite=true --imshow=true
 ```
+
+Please adjust the command based on your specific file names and paths, as well as your desired configuration for video writing and frame display.
 
 ### Additional Notes
 
@@ -100,4 +102,3 @@ Here's an example command to run the program with LibTorch backend, using a `wei
 ### TODO/IN PROGRESS
 
 - Inference metrics and comparisons using one between yolov8s or yolov8m model
-- Write or Show a processed video with label and fps info
