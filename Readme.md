@@ -1,7 +1,7 @@
 # The Underwater Trash Instance Segmentation YoloV8 Inference
 I developed this project as final capstone of Coursera GPU Programming Specialization, this README provides instructions for performing c++ inference on the [The Underwater Trash Instance Segmentation Dataset](https://conservancy.umn.edu/handle/11299/214865) using various frameworks having both CPU and GPU backends, with the aim of showcasing the differences in inference time between these two devices. The dataset with all the training procedure is available at the link [https://learnopencv.com/train-yolov8-instance-segmentation/](https://learnopencv.com/train-yolov8-instance-segmentation/).  
 
-I'm, planning to cover the following frameworks and backends:
+I tested the following frameworks and backends:
 
 1. ONNX Runtime (CPU/GPU Backend)
 3. LibTorch (CPU/GPU)
