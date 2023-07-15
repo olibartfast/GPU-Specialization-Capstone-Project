@@ -7,3 +7,4 @@
 [2023-07-15 03:00:22.941] [logger] [info] 	is_gpu: false
 [2023-07-15 03:00:22.941] [logger] [info] 	enable_videowrite: true
 [2023-07-15 03:00:22.941] [logger] [info] 	enable_imshow: false
+[2023-07-15 03:01:52.134] [logger] [info] Average FPS: 43.6507936507943
