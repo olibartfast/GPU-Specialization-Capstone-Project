@@ -13,15 +13,16 @@ public:
 
     YoloV8Libtorch(const std::string& model_path, bool use_gpu = false)
     {
+        logger_->info("Initializing YoloV8Libtorch");
         if (use_gpu && torch::cuda::is_available())
         {
             device_ = torch::kCUDA;
-            std::cout << "Using CUDA GPU" << std::endl;
+            logger_->info("Using CUDA GPU");
         }
         else
         {
             device_ = torch::kCPU;
-            std::cout << "Using CPU" << std::endl;
+            logger_->info("Using CPU");
         }
 
         module_ = torch::jit::load(model_path, device_);

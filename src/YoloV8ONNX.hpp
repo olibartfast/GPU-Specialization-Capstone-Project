@@ -3,22 +3,19 @@
 #include <onnxruntime_cxx_api.h>  // for ONNX Runtime C++ API
 #include <onnxruntime_c_api.h>    // for CUDA execution provider (if using CUDA)
 
-
 class YoloV8ONNX : public YoloV8
 {
 private:
     Ort::Env env_;
-    Ort::Session session_{nullptr};
+    Ort::Session session_{ nullptr };
     std::vector<std::string> input_names_;  // Store input layer names
     std::vector<std::string> output_names_; // Store output layer names
     std::vector<std::vector<int64_t>> input_shapes_;
     std::vector<std::vector<int64_t>> output_shapes_;
 
-
 public:
-
     // pretty prints a shape dimension vector
-    std::string print_shape(const std::vector<std::int64_t> &v)
+    std::string print_shape(const std::vector<std::int64_t>& v)
     {
         std::stringstream ss("");
         for (std::size_t i = 0; i < v.size() - 1; i++)
@@ -27,66 +24,90 @@ public:
         return ss.str();
     }
 
-    YoloV8ONNX(const std::string &model_path, bool use_gpu = false)
+    YoloV8ONNX(const std::string& model_path, bool use_gpu = false)
     {
-
-        Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "YoloV8ONNX");
+        logger_->info("Initializing YoloV8ONNX");
+        env_=Ort::Env(ORT_LOGGING_LEVEL_WARNING, "YoloV8ONNX");
 
         Ort::SessionOptions session_options;
 
-        if(use_gpu)
+        if (use_gpu)
         {
             // Check if CUDA GPU is available
-            int device_id = 0;
-            OrtStatus* status = OrtSessionOptionsAppendExecutionProvider_CUDA(session_options, device_id);
-            if (status == nullptr) {
-                // CUDA GPU is available, use it
-                std::cout << "Using CUDA GPU" << std::endl;
-            } else {
+            std::vector<std::string> providers = Ort::GetAvailableProviders();
+            logger_->info("Available providers:");
+            bool is_found = false;
+            for (const auto& p : providers)
+            {
+                logger_->info("{}", p);
+                if (p.find("CUDA") != std::string::npos)
+                {
+                    // CUDA GPU is available, use it
+                    logger_->info("Using CUDA GPU");
+                    OrtCUDAProviderOptions cuda_options;
+                    session_options.AppendExecutionProvider_CUDA(cuda_options);
+                    is_found = true;
+                    break;
+                }
+            }
+            if (!is_found)
+            {
                 // CUDA GPU is not available, fall back to CPU
-                std::cout << "CUDA GPU not available, falling back to CPU" << std::endl;
-                Ort::GetApi().ReleaseStatus(status);
+                logger_->info("CUDA GPU not available, falling back to CPU");
                 session_options = Ort::SessionOptions();
             }
         }
+        else
+        {
+            logger_->info("Using CPU");
+            session_options = Ort::SessionOptions();
+        }
 
-        session_ = Ort::Session(env, model_path.c_str(), session_options);
+        try
+        {
+            session_ = Ort::Session(env_, model_path.c_str(), session_options);
+        }
+        catch (const Ort::Exception& ex)
+        {
+            logger_->error("Failed to load the ONNX model: {}", ex.what());
+            std::exit(1);
+        }
 
         Ort::AllocatorWithDefaultOptions allocator;
-        std::cout << "Input Node Name/Shape (" << input_names_.size() << "):" << std::endl;
+        logger_->info("Input Node Name/Shape ({}):", session_.GetInputCount());
         for (std::size_t i = 0; i < session_.GetInputCount(); i++)
         {
             input_names_.emplace_back(session_.GetInputNameAllocated(i, allocator).get());
             const auto input_shapes = session_.GetInputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape();
-            std::cout << "\t" << input_names_.at(i) << " : " << print_shape(input_shapes) << std::endl;
+            logger_->info("\t{} : {}", input_names_.at(i), print_shape(input_shapes));
             input_shapes_.emplace_back(input_shapes);
         }
         input_width_ = static_cast<int>(input_shapes_[0][3]);
         input_height_ = static_cast<int>(input_shapes_[0][2]);
         channels_ = static_cast<int>(input_shapes_[0][1]);
-        std::cout << "channels " << channels_ << std::endl;
-        std::cout << "w " << input_width_ << std::endl;
-        std::cout << "h " << input_height_ << std::endl;
+        logger_->info("channels {}", channels_);
+        logger_->info("w {}", input_width_);
+        logger_->info("h {}", input_height_);
 
         // print name/shape of outputs
-        std::cout << "Output Node Name/Shape (" << output_names_.size() << "):" << std::endl;
+        logger_->info("Output Node Name/Shape ({}):", session_.GetOutputCount());
         for (std::size_t i = 0; i < session_.GetOutputCount(); i++)
         {
             output_names_.emplace_back(session_.GetOutputNameAllocated(i, allocator).get());
             auto output_shapes = session_.GetOutputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape();
-            std::cout << "\t" << output_names_.at(i) << " : " << print_shape(output_shapes) << std::endl;
+            logger_->info("\t{} : {}", output_names_.at(i), print_shape(output_shapes));
             output_shapes_.emplace_back(output_shapes);
         }
     }
 
-     std::tuple<std::vector<Detection>, Mask> infer(const cv::Mat& image) override
+    std::tuple<std::vector<Detection>, Mask> infer(const cv::Mat& image) override
     {
-        
         std::vector<std::vector<float>> input_tensors(session_.GetInputCount());
         std::vector<Ort::Value> in_ort_tensors;
         Ort::MemoryInfo memory_info = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
 
-        for (size_t i = 0; i < session_.GetInputCount(); ++i) {
+        for (size_t i = 0; i < session_.GetInputCount(); ++i)
+        {
             input_tensors[i] = preprocess_image(image);
             in_ort_tensors.emplace_back(Ort::Value::CreateTensor<float>(
                 memory_info,
@@ -129,5 +150,4 @@ public:
         cv::Size frame_size(image.cols, image.rows);
         return postprocess(output0, output1, shape0, shape1, frame_size);
     }
-
 };

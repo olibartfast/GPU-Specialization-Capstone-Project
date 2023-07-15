@@ -8,13 +8,13 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(OpenCV REQUIRED)
 
 # Set the path to the selected framework (modify accordingly)
-set(FRAMEWORK "ONNX_RUNTIME")  # Options: ONNX_RUNTIME, LIBTORCH, TENSORRT
+set(FRAMEWORK "TENSORRT")  # Options: ONNX_RUNTIME, LIBTORCH, TENSORRT
 
 # Set the source files for your project
 set(SOURCES main.cpp)
 
 # Include directories for OpenCV
-include_directories(${OpenCV_INCLUDE_DIRS} inc src)
+include_directories(${OpenCV_INCLUDE_DIRS} include src)
 
 # Unset cache compiler definitions for the selected framework
 if(FRAMEWORK STREQUAL "ONNX_RUNTIME")
@@ -24,6 +24,9 @@ if(FRAMEWORK STREQUAL "ONNX_RUNTIME")
     add_compile_definitions(USE_ONNX_RUNTIME)
     # Set the path to ONNX Runtime (modify accordingly)
     set(ONNX_RUNTIME_DIR $ENV{HOME}/onnxruntime-linux-x64-gpu-1.15.1)
+    set(CUDA_TOOLKIT_ROOT_DIR /usr/local/cuda-11.8)
+    find_package(CUDA REQUIRED)
+
     include_directories(${ONNX_RUNTIME_DIR}/include)
     link_directories(${ONNX_RUNTIME_DIR}/lib)
 

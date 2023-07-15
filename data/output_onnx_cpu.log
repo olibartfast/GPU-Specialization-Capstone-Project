@@ -1,0 +1,18 @@
+[2023-07-15 02:12:05.088] [logger] [info] Initializing application
+[2023-07-15 02:12:05.089] [logger] [info] CLI Parameters:
+[2023-07-15 02:12:05.089] [logger] [info] 	weights: /home/oli/Downloads/Train-YOLOv8-Instance-Segmentation-on-Custom-Data/runs/segment/yolov8m-seg/weights/best.onnx
+[2023-07-15 02:12:05.089] [logger] [info] 	video: /home/oli/Downloads/trash_ICRA19/dataset/videos_for_testing/manythings.mp4
+[2023-07-15 02:12:05.089] [logger] [info] 	is_gpu: false
+[2023-07-15 02:12:05.089] [logger] [info] 	enable_videowrite: true
+[2023-07-15 02:12:05.089] [logger] [info] 	enable_imshow: false
+[2023-07-15 02:12:05.097] [logger] [info] Initializing YoloV8ONNX
+[2023-07-15 02:12:05.097] [logger] [info] Using CPU
+[2023-07-15 02:12:05.320] [logger] [info] Input Node Name/Shape (1):
+[2023-07-15 02:12:05.321] [logger] [info] 	images : 1x3x640x640
+[2023-07-15 02:12:05.321] [logger] [info] channels 3
+[2023-07-15 02:12:05.321] [logger] [info] w 640
+[2023-07-15 02:12:05.321] [logger] [info] h 640
+[2023-07-15 02:12:05.321] [logger] [info] Output Node Name/Shape (2):
+[2023-07-15 02:12:05.321] [logger] [info] 	output0 : 1x52x8400
+[2023-07-15 02:12:05.321] [logger] [info] 	output1 : 1x32x160x160
+[2023-07-15 02:16:43.891] [logger] [info] Average FPS: 4.21826443380837

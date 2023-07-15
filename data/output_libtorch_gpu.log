@@ -1,0 +1,12 @@
+[2023-07-15 02:51:54.646] [logger] [info] Initializing application
+[2023-07-15 02:51:54.646] [logger] [info] CPU: 11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz
+[2023-07-15 02:51:54.647] [logger] [info] GPU:  		 NVIDIA GeForce RTX 3060 Laptop GPU
+[2023-07-15 02:51:54.647] [logger] [info] CLI Parameters:
+[2023-07-15 02:51:54.647] [logger] [info] 	weights: /home/oli/Downloads/Train-YOLOv8-Instance-Segmentation-on-Custom-Data/runs/segment/yolov8m-seg/weights/best.torchscript
+[2023-07-15 02:51:54.647] [logger] [info] 	video: /home/oli/Downloads/trash_ICRA19/dataset/videos_for_testing/manythings.mp4
+[2023-07-15 02:51:54.647] [logger] [info] 	is_gpu: true
+[2023-07-15 02:51:54.647] [logger] [info] 	enable_videowrite: true
+[2023-07-15 02:51:54.647] [logger] [info] 	enable_imshow: false
+[2023-07-15 02:51:54.647] [logger] [info] Initializing YoloV8Libtorch
+[2023-07-15 02:51:54.651] [logger] [info] Using CUDA GPU
+[2023-07-15 02:52:29.589] [logger] [info] Average FPS: 35.8273160239672

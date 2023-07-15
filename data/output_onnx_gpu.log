@@ -1,0 +1,23 @@
+[2023-07-15 02:40:10.670] [logger] [info] Initializing application
+[2023-07-15 02:40:10.670] [logger] [info] CPU: 11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz
+[2023-07-15 02:40:44.369] [logger] [info] GPU: Model: 		 NVIDIA GeForce RTX 3060 Laptop GPU
+[2023-07-15 02:40:44.372] [logger] [info] CLI Parameters:
+[2023-07-15 02:40:44.372] [logger] [info] 	weights: /home/oli/Downloads/Train-YOLOv8-Instance-Segmentation-on-Custom-Data/runs/segment/yolov8m-seg/weights/best.onnx
+[2023-07-15 02:40:44.372] [logger] [info] 	video: /home/oli/Downloads/trash_ICRA19/dataset/videos_for_testing/manythings.mp4
+[2023-07-15 02:40:44.372] [logger] [info] 	is_gpu: true
+[2023-07-15 02:40:44.372] [logger] [info] 	enable_videowrite: true
+[2023-07-15 02:40:44.372] [logger] [info] 	enable_imshow: false
+[2023-07-15 02:40:44.384] [logger] [info] Initializing YoloV8ONNX
+[2023-07-15 02:40:44.384] [logger] [info] Available providers:
+[2023-07-15 02:40:44.384] [logger] [info] TensorrtExecutionProvider
+[2023-07-15 02:40:44.384] [logger] [info] CUDAExecutionProvider
+[2023-07-15 02:40:44.384] [logger] [info] Using CUDA GPU
+[2023-07-15 02:40:46.181] [logger] [info] Input Node Name/Shape (1):
+[2023-07-15 02:40:46.181] [logger] [info] 	images : 1x3x640x640
+[2023-07-15 02:40:46.181] [logger] [info] channels 3
+[2023-07-15 02:40:46.181] [logger] [info] w 640
+[2023-07-15 02:40:46.181] [logger] [info] h 640
+[2023-07-15 02:40:46.181] [logger] [info] Output Node Name/Shape (2):
+[2023-07-15 02:40:46.181] [logger] [info] 	output0 : 1x52x8400
+[2023-07-15 02:40:46.181] [logger] [info] 	output1 : 1x32x160x160
+[2023-07-15 02:41:26.104] [logger] [info] Average FPS: 30.25820682496422
