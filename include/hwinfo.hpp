@@ -12,11 +12,20 @@
 namespace fs = std::filesystem;
 
 
+
 std::string getGPUModel() {
     std::string gpuModel;
 
-    // Iterate over the directories in /proc/driver/nvidia/gpus
+    // Check if the directory exists
     fs::path gpuDirectory("/proc/driver/nvidia/gpus");
+    if (!fs::exists(gpuDirectory)) {
+        // Handle the case when the directory does not exist
+        // You can set alternative behavior or show an error message
+        // depending on your project requirements.
+        return gpuModel; // Return an empty string
+    }
+
+    // Iterate over the directories in /proc/driver/nvidia/gpus
     for (const auto& directory : fs::directory_iterator(gpuDirectory)) {
         std::string gpuDirectoryPath = directory.path();
         std::ifstream gpuInfoStream(gpuDirectoryPath + "/information");

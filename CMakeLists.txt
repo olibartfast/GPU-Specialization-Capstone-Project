@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(OpenCV REQUIRED)
 
 # Set the path to the selected framework (modify accordingly)
-set(FRAMEWORK "TENSORRT")  # Options: ONNX_RUNTIME, LIBTORCH, TENSORRT
+set(FRAMEWORK "ONNX_RUNTIME")  # Options: ONNX_RUNTIME, LIBTORCH, TENSORRT
 
 # Set the source files for your project
 set(SOURCES main.cpp)
@@ -17,16 +17,24 @@ set(SOURCES main.cpp)
 include_directories(${OpenCV_INCLUDE_DIRS} include src)
 
 # Unset cache compiler definitions for the selected framework
-if(FRAMEWORK STREQUAL "ONNX_RUNTIME")
+if (FRAMEWORK STREQUAL "ONNX_RUNTIME")
     unset(USE_LIBTORCH CACHE)
     unset(USE_TENSORRT CACHE)
-    message(STATUS "Set onnx runtime")
+    message(STATUS "Set ONNX Runtime")
     add_compile_definitions(USE_ONNX_RUNTIME)
     # Set the path to ONNX Runtime (modify accordingly)
     set(ONNX_RUNTIME_DIR $ENV{HOME}/onnxruntime-linux-x64-gpu-1.15.1)
-    set(CUDA_TOOLKIT_ROOT_DIR /usr/local/cuda-11.8)
-    find_package(CUDA REQUIRED)
 
+    find_package(CUDA)
+    if (CUDA_FOUND)
+        message(STATUS "Found CUDA")
+        set(CUDA_TOOLKIT_ROOT_DIR /usr/local/cuda-11.8)
+    else ()
+        message(WARNING "CUDA not found. GPU support will be disabled.")
+        # Handle the case when CUDA is not found
+        # You can set alternative behavior or show an error message
+        # depending on your project requirements.
+    endif ()
     include_directories(${ONNX_RUNTIME_DIR}/include)
     link_directories(${ONNX_RUNTIME_DIR}/lib)
 
