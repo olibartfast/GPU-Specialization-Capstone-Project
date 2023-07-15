@@ -94,6 +94,22 @@ Here's an example command to run the program with LibTorch backend, using a `wei
 
 Please adjust the command based on your specific file names and paths, as well as your desired configuration for video writing and frame display.
 
+### Results
+Here are the results obtained from the different frameworks and backends:
+
+| Framework      | Backend | Average FPS |
+|----------------|---------|-------------|
+| LibTorch       | CPU     | 3.98        |
+| LibTorch       | GPU     | 35.83       |
+| ONNX Runtime   | CPU     | 4.22        |
+| ONNX Runtime   | GPU     | 30.26       |
+| TensorRT       | GPU     | 43.65       |
+
+These results were obtained using the following hardware configuration:
+
+- CPU: 11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz
+- GPU: NVIDIA GeForce RTX 3060 Laptop GPU
+
 ### Additional Notes
 
 - Make sure to adjust the paths and options in the CMakeLists.txt file according to your installation paths.
