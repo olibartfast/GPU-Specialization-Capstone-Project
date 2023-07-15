@@ -79,14 +79,23 @@ void processFrame(YoloV8* yolo, cv::Mat& frame, const std::vector<cv::Scalar>& c
         cv::rectangle(frame, detections[i].bbox, class_colors[class_id], 2);
         frame_with_mask(detections[i].bbox).setTo(class_colors[class_id], mask);
 
-        // Write class label and score on the frame
+        // Create a solid color background for the label
+        cv::Mat label_bg(frame.size(), frame.type(), class_colors[class_id]);
+
+        // Write class label and score on the frame with solid color background
         std::string label = classes[detections[i].label_id];
         float score = detections[i].score;
         std::string text = label + ": " + std::to_string(score);
         int baseline = 0;
         cv::Size textSize = cv::getTextSize(text, cv::FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseline);
+        
         cv::Point textOrg(detections[i].bbox.x, detections[i].bbox.y - textSize.height);
-        cv::putText(frame, text, textOrg, cv::FONT_HERSHEY_SIMPLEX, 0.5, class_colors[class_id], 2, cv::LINE_AA);
+
+        // Draw the solid color background for the label
+        cv::rectangle(frame, textOrg, cv::Point(textOrg.x + textSize.width, textOrg.y + textSize.height), class_colors[class_id], -1);
+
+        // Write the label text on top of the solid color background
+        cv::putText(frame, text, cv::Point(detections[i].bbox.x, detections[i].bbox.y) , cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
     }
     cv::addWeighted(frame, 0.5, frame_with_mask, 0.5, 0, frame);
 
