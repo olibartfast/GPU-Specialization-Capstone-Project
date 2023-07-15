@@ -110,6 +110,9 @@ These results were obtained using the following hardware configuration:
 - CPU: 11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz
 - GPU: NVIDIA GeForce RTX 3060 Laptop GPU
 
+### Example Video
+You can find an example video demonstrating the inference process by clicking [here](data/processed_tensorrt.mp4).
+
 ### Additional Notes
 
 - Make sure to adjust the paths and options in the CMakeLists.txt file according to your installation paths.
