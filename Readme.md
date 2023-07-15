@@ -12,6 +12,7 @@ I tested the following frameworks and backends:
 Before proceeding, ensure that you have the following dependencies installed:
 
 - C++ compiler with C++17 support
+- CUDA if you want to use GPU, CUDA 12 is supported for LibTorch and TensorRT, I used CUDA 11.8 for onnx-rt
 - CMake (used 3.22.1)
 - ONNX Runtime 1.15.1 gpu package
 - LibTorch 2.0.1-cu118
