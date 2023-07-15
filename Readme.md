@@ -96,9 +96,4 @@ Please adjust the command based on your specific file names and paths, as well a
 ### Additional Notes
 
 - Make sure to adjust the paths and options in the CMakeLists.txt file according to your installation paths.
-- If you don't have a suitable video for testing, you can use a video from the [Trash ICRA 2019 dataset](https://conservancy.umn.edu/handle/11299/214366). Please make sure to download the dataset and specify the path to the dataset video in the command.
-
-
-### TODO/IN PROGRESS
-
-- Inference metrics and comparisons using one between yolov8s or yolov8m model
+- If you don't have a suitable video for testing, you can use a video from the [Trash ICRA 2019 dataset](https://conservancy.umn.edu/handle/11299/214366). Please make sure to download the dataset and specify the path to the dataset video in the command. Tested the video called 'manythings.mp4'
