@@ -1,10 +1,15 @@
-[2023-07-15 03:00:22.940] [logger] [info] Initializing application
-[2023-07-15 03:00:22.940] [logger] [info] CPU: 11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz
-[2023-07-15 03:00:22.941] [logger] [info] GPU:  		 NVIDIA GeForce RTX 3060 Laptop GPU
-[2023-07-15 03:00:22.941] [logger] [info] CLI Parameters:
-[2023-07-15 03:00:22.941] [logger] [info] 	weights: /home/oli/Downloads/Train-YOLOv8-Instance-Segmentation-on-Custom-Data/runs/segment/yolov8m-seg/weights/best.torchscript
-[2023-07-15 03:00:22.941] [logger] [info] 	video: /home/oli/Downloads/trash_ICRA19/dataset/videos_for_testing/manythings.mp4
-[2023-07-15 03:00:22.941] [logger] [info] 	is_gpu: false
-[2023-07-15 03:00:22.941] [logger] [info] 	enable_videowrite: true
-[2023-07-15 03:00:22.941] [logger] [info] 	enable_imshow: false
+[2023-07-15 03:01:23.567] [logger] [info] Initializing application
+[2023-07-15 03:01:23.568] [logger] [info] CPU: 11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz
+[2023-07-15 03:01:23.568] [logger] [info] GPU:                   NVIDIA GeForce RTX 3060 Laptop GPU
+[2023-07-15 03:01:23.568] [logger] [info] CLI Parameters:
+[2023-07-15 03:01:23.568] [logger] [info]       weights: /home/oli/Downloads/Train-YOLOv8-Instance-Segmentation-on-Custom-Data/runs/segment/yolov8m-seg/weights/best.engine
+[2023-07-15 03:01:23.568] [logger] [info]       video: /home/oli/Downloads/trash_ICRA19/dataset/videos_for_testing/manythings.mp4
+[2023-07-15 03:01:23.568] [logger] [info]       is_gpu: true
+[2023-07-15 03:01:23.568] [logger] [info]       enable_videowrite: true
+[2023-07-15 03:01:23.568] [logger] [info]       enable_imshow: false
+TensorRT Logger: Deserialization required 32073 microseconds.
+TensorRT Logger: Total per-runner device persistent memory is 154112
+TensorRT Logger: Total per-runner host persistent memory is 433744
+TensorRT Logger: Allocated activation device memory of size 65536000
+TensorRT Logger: CUDA lazy loading is not enabled. Enabling it can significantly reduce device memory usage and speed up TensorRT initialization. See "Lazy Loading" section of CUDA documentation https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#lazy-loading
 [2023-07-15 03:01:52.134] [logger] [info] Average FPS: 43.6507936507943
